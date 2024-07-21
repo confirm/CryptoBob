@@ -34,6 +34,10 @@ class KrakenClient:
 
     api_host = 'api.kraken.com'
 
+    public_methods = [
+        'SystemStatus',
+    ]
+
     def __init__(self, api_key, private_key, otp_uri=None):
         self.api_key     = api_key
         self.private_key = b64decode(private_key)
@@ -81,21 +85,22 @@ class KrakenClient:
 
         return data_encoded, headers
 
-    def _prepare_request(self, action, private=True, data=None):
+    def _prepare_request(self, api_method, data=None):
         '''
         Prepare the HTTP request and return the url & data.
 
-        :param str action: The API action
-        :param bool private: Flag for private or public endpoint
+        :param str api_method: The API method
         :param data: The POST data
         :type data: None or dict
 
         :return: The URL, urlencoded data, and headers
         :rtype: dict
         '''
+        public  = api_method in self.public_methods
+
         endpoint = '/0'
-        endpoint += '/private/' if private else '/public/'
-        endpoint += action
+        endpoint += '/public/' if public else '/private/'
+        endpoint += api_method
 
         url  = f'https://{self.api_host}{endpoint}'
 
@@ -103,7 +108,7 @@ class KrakenClient:
             'User-Agent': 'CryptoBob',
         }
 
-        if private:
+        if not public:
             data, additional_headers = self._sign_request(endpoint=endpoint, data=data)
             headers.update(additional_headers)
 
@@ -121,16 +126,20 @@ class KrakenClient:
 
         return kwargs
 
-    def _request(self, **kwargs):
+    def request(self, api_method, data=None):
         '''
         Make a request to the Kraken API.
 
-        Please refer to the :meth:`_prepare_request` method for the signature,
-        resp. keyword arguments of this method.
+        :param str api_method: The API method
+        :param data: The POST data
+        :type data: None or dict
 
-        :param dict \\**kwargs: The keyword arguments
+        :return: The response result
+        :rtype: dict
+
+        :raises ResponseError: When there was an error in the response
         '''
-        kwargs  = self._prepare_request(**kwargs)
+        kwargs  = self._prepare_request(api_method=api_method, data=data)
         request = Request(**kwargs)
 
         with urlopen(request) as response:
@@ -144,16 +153,6 @@ class KrakenClient:
 
         return response_data['result']
 
-    @property
-    def status(self):
-        '''
-        The system status of the Kraken exchange.
-
-        :return: The status
-        :rtype: str
-        '''
-        return self._request(action='SystemStatus', private=False)['status']
-
     def assert_online_status(self):
         '''
         Assert that the exchange status is online (and not maintenance).
@@ -162,16 +161,6 @@ class KrakenClient:
         '''
         LOGGER.debug('Asserting online system status')
 
-        status = self.status
+        status = self.request('SystemStatus')['status']
         if status != 'online':
             raise StatusError(f'System status is {status!r}')
-
-    @property
-    def balance(self):
-        '''
-        The account balance.
-
-        :return: The balance
-        :rtype: dict
-        '''
-        return self._request(action='Balance')
