@@ -1,5 +1,5 @@
 '''
-CryptoBob trade module.
+CryptoBob trade plan module.
 '''
 
 __all__ = (
@@ -8,25 +8,28 @@ __all__ = (
 
 from datetime import timedelta
 from logging import getLogger
+from zlib import crc32
 
 LOGGER = getLogger(__name__)
 
 
 class TradePlan:
     '''
-    The trading class.
+    The trade plan class.
 
     :param binance.client.Client client: The binance client
-    :param str symbol: The trading symbol
-    :param float quantity: The quantity
+    :param str pair: The trading pair
+    :param float amount: The amount
     :param dict schedule: The schedule
     '''
 
-    def __init__(self, client, symbol, quantity, schedule):
-        self.client   = client
-        self.symbol   = symbol
-        self.quantity = quantity
-        self.delta    = timedelta(**schedule)
+    configuration_attribute = 'trade_plans'
+
+    def __init__(self, client, pair, amount, schedule):
+        self.client = client
+        self.pair   = pair
+        self.amount = amount
+        self.delta  = timedelta(**schedule)
 
     def __str__(self):
         '''
@@ -35,7 +38,7 @@ class TradePlan:
         :return: The informal string version
         :rtype: str
         '''
-        return self.symbol
+        return self.pair
 
     def __repr__(self):
         '''
@@ -44,7 +47,7 @@ class TradePlan:
         :return: The informal string version
         :rtype: str
         '''
-        return f'<{self.__class__.__name__}: {self.symbol}>'
+        return f'<{self.__class__.__name__}: {self.pair}>'
 
     def __call__(self):
         '''
