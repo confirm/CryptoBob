@@ -36,9 +36,16 @@ class KrakenClient:
 
     api_host = 'api.kraken.com'
 
-    public_methods = [
+    public_api_methods = [
+        'AssetPairs',
         'Assets',
+        'Depth',
+        'OHLC',
+        'Spread',
         'SystemStatus',
+        'Ticker',
+        'Time',
+        'Trades',
     ]
 
     def __init__(self, api_key=None, private_key=None, otp_uri=None):
@@ -95,7 +102,7 @@ class KrakenClient:
         :return: The URL, urlencoded data, and headers
         :rtype: dict
         '''
-        scope    = 'public' if api_method in self.public_methods else 'private'
+        scope    = 'public' if api_method in self.public_api_methods else 'private'
         endpoint = f'/0/{scope}/{api_method}'
 
         kwargs = {
