@@ -26,8 +26,10 @@ class KrakenClient:
     '''
     The API client to talk to the Kraken REST API.
 
-    :param str api_key: The API key retreived from Kraken
-    :param str private_key: The private key retreived from Kraken
+    :param api_key: The API key retreived from Kraken
+    :type api_key: None or str
+    :param private_key: The private key retreived from Kraken
+    :type private_key: None or str
     :param otp_uri: The 2FA / OTP URI retreived from Kraken (optional)
     :type otp_uri: None or str
     '''
@@ -35,28 +37,26 @@ class KrakenClient:
     api_host = 'api.kraken.com'
 
     public_methods = [
+        'Assets',
         'SystemStatus',
     ]
 
-    def __init__(self, api_key, private_key, otp_uri=None):
+    def __init__(self, api_key=None, private_key=None, otp_uri=None):
         self.api_key     = api_key
-        self.private_key = b64decode(private_key)
+        self.private_key = b64decode(private_key) if private_key else None
         self.otp_uri     = otp_uri
 
-    def _sign_request(self, endpoint, data):
+    def _sign_request(self, endpoint, **data):
         '''
         Sign the HTTP request and return the new data string, as well as
         additional headers required for authentication.
 
         :param str endpoint: The API endpoint / path
-        :param str data: The urlencoded POST data
+        :param dict \\**data: The API data
 
         :return: The signed data & headers
         :rtype: tuple(str, list)
         '''
-        # Prepare data.
-        data = data or {}
-
         # Use UNIX timestamp as nonce and append it do the data.
         data['nonce'] = str(int(time() * 1000))
 
@@ -85,61 +85,53 @@ class KrakenClient:
 
         return data_encoded, headers
 
-    def _prepare_request(self, api_method, data=None):
+    def _prepare_request(self, api_method, **data):
         '''
         Prepare the HTTP request and return the url & data.
 
         :param str api_method: The API method
-        :param data: The POST data
-        :type data: None or dict
+        :param dict \\**data: The API data
 
         :return: The URL, urlencoded data, and headers
         :rtype: dict
         '''
-        public  = api_method in self.public_methods
-
-        endpoint = '/0'
-        endpoint += '/public/' if public else '/private/'
-        endpoint += api_method
-
-        url  = f'https://{self.api_host}{endpoint}'
-
-        headers = {
-            'User-Agent': 'CryptoBob',
-        }
-
-        if not public:
-            data, additional_headers = self._sign_request(endpoint=endpoint, data=data)
-            headers.update(additional_headers)
-
-        LOGGER.debug('Request URL is %r', url)
-        LOGGER.debug('Request POST data is %r', data)
-        LOGGER.debug('Request HTTP headers %r', headers)
+        scope    = 'public' if api_method in self.public_methods else 'private'
+        endpoint = f'/0/{scope}/{api_method}'
 
         kwargs = {
-            'url': url,
-            'headers': headers,
+            'url': f'https://{self.api_host}{endpoint}',
+            'headers': {
+                'User-Agent': 'CryptoBob',
+            }
         }
 
-        if data:
-            kwargs['data'] = data.encode('utf-8')
+        if scope == 'private':
+            encoded_data, add_headers = self._sign_request(endpoint=endpoint, data=data)
+            kwargs['data'] = encoded_data.encode('utf-8')
+            kwargs['headers'].update(add_headers)
+        elif data:
+            encoded_data = urlencode(data)
+            kwargs['url'] += f'?{encoded_data}'
+
+        LOGGER.debug('Request URL is %r', kwargs['url'])
+        LOGGER.debug('Request data is %r', kwargs.get('data'))
+        LOGGER.debug('Request HTTP headers %r', kwargs['headers'])
 
         return kwargs
 
-    def request(self, api_method, data=None):
+    def request(self, api_method, **data):
         '''
         Make a request to the Kraken API.
 
         :param str api_method: The API method
-        :param data: The POST data
-        :type data: None or dict
+        :param dict \\**data: The API data
 
         :return: The response result
         :rtype: dict
 
         :raises ResponseError: When there was an error in the response
         '''
-        kwargs  = self._prepare_request(api_method=api_method, data=data)
+        kwargs  = self._prepare_request(api_method=api_method, **data)
         request = Request(**kwargs)
 
         with urlopen(request) as response:
