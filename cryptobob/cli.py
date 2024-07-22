@@ -16,6 +16,7 @@ from pathlib import Path
 from pyotp import parse_uri as otp_parse_uri
 
 from .config import Config
+from .kraken import KrakenClient
 from .exceptions import CryptoBobError
 from .runner import Runner
 
@@ -62,6 +63,11 @@ class CLI:
                 runner = Runner(config=config)
                 runner()
 
+            elif action == 'assets':
+                print('\n'.join((
+                    item["altname"] for item in KrakenClient().request('Assets').values()
+                )))
+
             elif action == 'otp':
                 print(otp_parse_uri(config.otp_uri).now())
 
@@ -96,7 +102,7 @@ class CLI:
 
         self.parser.add_argument(
             'action',
-            choices=['run', 'otp'],
+            choices=['run', 'assets', 'otp'],
             help='action to execute',
         )
 
