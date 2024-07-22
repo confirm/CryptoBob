@@ -75,7 +75,7 @@ class Runner:
         '''
         Start the runner cycle.
         '''
-        interval = self.config.interval
+        interval = self.config.interval * 60
 
         while True:
             LOGGER.debug('Starting new runner cycle')
