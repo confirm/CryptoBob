@@ -12,6 +12,7 @@ from time import sleep
 from .exceptions import ConfigError
 from .kraken import KrakenClient
 from .tradeplan import TradePlan
+from .withdrawl import Withdrawl
 
 LOGGER = getLogger(__name__)
 
@@ -28,6 +29,7 @@ class Runner:
         self.config      = config
         self.client      = None
         self.trade_plans = []
+        self.withdrawls  = []
 
     def __call__(self):
         '''
@@ -36,7 +38,8 @@ class Runner:
         LOGGER.info('Starting CryptoBob runner')
 
         self.init_client()
-        self.init_trades()
+        self.init_trade_plans()
+        self.init_withdrawls()
 
         self.start_cycle()
 
@@ -59,17 +62,49 @@ class Runner:
 
         self.client = KrakenClient(**kwargs)
 
-    def init_trades(self):
+    def init_configuration_instances(self, klass):
         '''
-        Initialise the trades.
+        Look up defined instances in the configuration, then automatically
+        initialise them to Python instances, so that the runner can access them
+        later in the run cycle.
+
+        The passed :param:`klass` class defines the attribute name of the
+        configuration. The defined keyword arguments are then automatically
+        passed to the class constructor, and the instantiated object is then
+        added to the runner.
+
+        :param class klass: The class
+
+        :raises ConfigError: When there's configuration / kwarg error
         '''
-        LOGGER.debug('Initialising trade plans')
+        name = klass.__name__
+        attr = klass.configuration_attribute
 
-        self.trade_plans = []
+        LOGGER.debug('Initialising %s instances', name)
 
-        for trade_plan in self.config.trade_plans:
-            LOGGER.debug('Found trade plan configuration %r', trade_plan)
-            self.trade_plans.append(TradePlan(client=self.client, **trade_plan))
+        items = []
+        setattr(self, attr, items)
+
+        for item in getattr(self.config, attr):
+            LOGGER.debug('Initialising %s instance for configuration %r', name, item)
+
+            try:
+                items.append(klass(client=self.client, **item))
+            except TypeError as ex:
+                error = f'{name} configuration {item!r} misconfigured, got «{ex}»'
+                raise ConfigError(error) from ex
+
+    def init_trade_plans(self):
+        '''
+        Initialise the trade plans.
+        '''
+        self.init_configuration_instances(TradePlan)
+
+    def init_withdrawls(self):
+        '''
+        Initialise the withdrawls.
+        '''
+        self.init_configuration_instances(Withdrawl)
 
     def start_cycle(self):
         '''
@@ -84,6 +119,11 @@ class Runner:
 
             for trade_plan in self.trade_plans:
                 trade_plan()
+
+            self.client.update_balance()
+
+            for withdrawl in self.withdrawls:
+                withdrawl()
 
             LOGGER.debug('Runner cycle finished, sleeping for %d seconds', interval)
             sleep(interval)

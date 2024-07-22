@@ -163,3 +163,9 @@ class KrakenClient:
         status = self.request('SystemStatus')['status']
         if status != 'online':
             raise StatusError(f'System status is {status!r}')
+
+    def update_balance(self):
+        '''
+        Update the account balance.
+        '''
+        self.balance = self.request('Balance')
