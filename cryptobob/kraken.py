@@ -12,7 +12,7 @@ from hmac import digest as hmac_digest
 from json import load
 from logging import getLogger
 from time import time
-from urllib.parse import unquote_plus, urlencode
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from pyotp import parse_uri as otp_parse_uri
@@ -47,6 +47,17 @@ class KrakenClient:
         'Time',
         'Trades',
     ]
+
+    @classmethod
+    def assets(cls):
+        '''
+        Return the available assets.
+
+        :return: The asset ID & altname
+        :rtype: generator
+        '''
+        for iid, item in cls().request('Assets').items():
+            yield iid, item['altname']
 
     def __init__(self, api_key=None, private_key=None, otp_uri=None):
         self.api_key     = api_key

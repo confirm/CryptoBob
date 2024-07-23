@@ -64,9 +64,9 @@ class CLI:
                 runner()
 
             elif action == 'assets':
-                print('\n'.join((
-                    item["altname"] for item in KrakenClient().request('Assets').values()
-                )))
+                print('ID         | Altname')
+                print('-----------+-----------')
+                print('\n'.join(f'{item[0]:10s} | {item[1]}' for item in KrakenClient.assets()))
 
             elif action == 'otp':
                 print(otp_parse_uri(config.otp_uri).now())
