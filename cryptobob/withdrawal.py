@@ -8,8 +8,6 @@ __all__ = (
 
 from logging import getLogger
 
-from .exceptions import ConfigError
-
 LOGGER = getLogger(__name__)
 
 
@@ -78,13 +76,8 @@ class Withdrawal:
 
         withdraw_amount = min(amount or balance, balance)
 
-        try:
-            test = bool(self.runner.config.test)
-        except ConfigError:
-            test = False
-
         LOGGER.info('Initiating withdrawal of %f %s to %s', withdraw_amount, asset, address)
-        if not test:
+        if not self.runner.config.get('test', False):
             self.runner.client.request(
                 'Withdraw',
                 asset=asset,

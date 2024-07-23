@@ -49,15 +49,10 @@ class Runner:
         '''
         LOGGER.debug('Initialising client')
 
-        try:
-            otp_uri = self.config.otp_uri
-        except ConfigError:
-            otp_uri = None
-
         kwargs = {
             'api_key': self.config.api_key,
             'private_key': self.config.private_key,
-            'otp_uri': otp_uri
+            'otp_uri': self.config.get('otp_uri')
         }
 
         self.client = KrakenClient(**kwargs)

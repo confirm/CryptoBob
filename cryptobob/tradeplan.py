@@ -12,7 +12,7 @@ from struct import pack, unpack
 from time import time
 from zlib import crc32
 
-from .exceptions import ConfigError, ResponseError, TradePlanError
+from .exceptions import ResponseError, TradePlanError
 
 LOGGER = getLogger(__name__)
 
@@ -186,11 +186,6 @@ class TradePlan:
         LOGGER.info('Opening new market order for %r with quote currency amount of %f',
                     self, self.amount)
 
-        try:
-            validate = bool(self.runner.config.test)
-        except ConfigError:
-            validate = False
-
         self.last_failed = None
 
         try:
@@ -204,7 +199,7 @@ class TradePlan:
                 ordertype='market',
                 type='buy',
                 timeinforce='GTC',
-                validate=validate,
+                validate=bool(self.runner.config.get('test', False)),
             )
 
         except ResponseError as ex:

@@ -29,15 +29,21 @@ class CLI:
     '''
 
     @classmethod
-    def init_logging(cls, level):
+    def init_logging(cls, level, simple=False):
         '''
         Initialise the logging config.
 
         :param int level: The logging level
+        :param bool simple: Enable simple logging
         '''
+        if simple:
+            log_format = '%(message)s'
+        else:
+            log_format = '%(asctime)s - %(levelname)s - %(name)s: %(message)s'
+
         basicConfig(
             level=(4 - level) * 10,
-            format='%(asctime)s - %(levelname)s - %(name)s: %(message)s',
+            format=log_format,
         )
 
     def __init__(self):
@@ -53,11 +59,14 @@ class CLI:
         args   = vars(self.parser.parse_args())
         action = args.pop('action')
 
+        self.init_logging(
+            level=args.get('verbose') or 0,
+            simple=args.get('simple')
+        )
+
         try:
 
             config = Config(args.pop('config'))
-
-            self.init_logging(args.get('verbose') or 0)
 
             if action == 'run':
                 runner = Runner(config=config)
@@ -93,6 +102,12 @@ class CLI:
             type=Path,
             default='~/.cryptobob.yml',
             help='the path to the CryptoBob config',
+        )
+
+        self.parser.add_argument(
+            '-s', '--simple',
+            action='store_true',
+            help='enable simple logging format (e.g. for systemd)',
         )
 
         self.parser.add_argument(

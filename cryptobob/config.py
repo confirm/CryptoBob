@@ -43,6 +43,19 @@ class Config:  # pylint: disable=too-few-public-methods
         except KeyError as ex:
             raise ConfigError(f'Missing configuration property {ex}') from ex
 
+    def get(self, attr, default=None):
+        '''
+        Get a config attribute.
+
+        :param str attr: The attribute
+        :param default: The default value when the attribute wasn't found
+        :type default: mixed
+
+        :return: The config attribute
+        :rtype: mixed
+        '''
+        return self.data.get(attr, default)
+
     def verify_permissions(self):
         '''
         Verify the permissions of the configuration file.
