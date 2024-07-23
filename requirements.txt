@@ -1,0 +1,2 @@
+pyotp==2.9.0    # generate 2FA / OTP code
+PyYAML>=6.0.1   # configuration parsing

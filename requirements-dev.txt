@@ -1,0 +1,8 @@
+coverage
+isort
+pip-audit
+pycodestyle
+pylint
+setuptools
+setuptools_scm
+wheel

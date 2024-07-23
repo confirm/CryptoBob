@@ -5,6 +5,12 @@ Setup script to create a pip/pypi package via setuptools.
 
 from setuptools import setup
 
+with open('requirements.txt') as f:
+    requirements = f.read().strip().split('\n')
+
+with open('requirements-dev.txt') as f:
+    requirements_dev = f.read().strip().split('\n')
+
 setup(
 
     #
@@ -55,9 +61,10 @@ setup(
         'setuptools_scm',
     ],
 
-    install_requires=[
-        'pyotp==2.9.0',     # generate 2FA / OTP code
-        'PyYAML>=6.0.1',    # configuration parsing
-    ],
+    install_requires=requirements,
+
+    extras_require={
+        'dev': requirements_dev
+    },
 
 )
