@@ -67,10 +67,13 @@ class CLI:
         try:
 
             config = Config(args.pop('config'))
+            runner = Runner(config=config)
 
             if action == 'run':
-                runner = Runner(config=config)
-                runner()
+                runner.run()
+
+            elif action == 'buy':
+                runner.buy()
 
             elif action == 'assets':
                 sys.stdout.write('ID         | Altname\n-----------+-----------\n')
@@ -101,7 +104,7 @@ class CLI:
             '-c', '--config',
             type=Path,
             default='~/.cryptobob.yml',
-            help='the path to the CryptoBob config',
+            help='path to the CryptoBob config',
         )
 
         self.parser.add_argument(
@@ -118,7 +121,7 @@ class CLI:
 
         self.parser.add_argument(
             'action',
-            choices=['run', 'assets', 'otp'],
+            choices=['run', 'buy', 'assets', 'otp'],
             help='action to execute',
         )
 

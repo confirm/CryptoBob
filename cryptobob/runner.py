@@ -31,17 +31,15 @@ class Runner:
         self.trade_plans = []
         self.withdrawals  = []
 
-    def __call__(self):
+        self.init_runner()
+
+    def init_runner(self):
         '''
         Run the runner by executing all test cases.
         '''
-        LOGGER.info('Starting CryptoBob runner')
-
         self.init_client()
         self.init_trade_plans()
         self.init_withdrawals()
-
-        self.start_cycle()
 
     def init_client(self):
         '''
@@ -101,15 +99,25 @@ class Runner:
         '''
         self.init_configuration_instances(Withdrawal)
 
-    def start_cycle(self):
+    def buy(self):
         '''
-        Start the runner cycle.
+        Open buy orders, regardless of the interval.
         '''
+        LOGGER.info('Opening buy orders')
+
+        for trade_plan in self.trade_plans:
+            trade_plan.open_order()
+
+    def run(self):
+        '''
+        Start the runner cycle in an endless loop.
+        '''
+        LOGGER.info('Starting CryptoBob runner')
+
         interval = self.config.interval * 60
 
         while True:
-            LOGGER.debug('========== CYCLE START')
-            LOGGER.debug('Starting new runner cycle')
+            LOGGER.debug('========== START: Starting new runner cycle')
 
             self.client.assert_online_status()
 
@@ -124,6 +132,6 @@ class Runner:
             for withdrawal in self.withdrawals:
                 withdrawal()
 
-            LOGGER.debug('Runner cycle finished, sleeping for %d seconds', interval)
-            LOGGER.debug('========== CYCLE FINISH')
+            LOGGER.debug('========== FINISH: Runner cycle finished, sleeping for %d seconds',
+                         interval)
             sleep(interval)

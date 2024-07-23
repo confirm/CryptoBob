@@ -30,16 +30,17 @@ Usage
 The usage of ``cryptobob`` is quite simple:
 
 ```
-usage: cryptobob [-h] [-c CONFIG] [-v] {run,assets,otp}
+usage: cryptobob [-h] [-c CONFIG] [-s] [-v] {run,buy,assets,otp}
 
 CryptoBob - The bot which buys & withdraws crypto automatically.
 
 positional arguments:
-  {run,assets,otp}            action to execute
+  {run,buy,assets,otp}        action to execute
 
 options:
   -h, --help                  show this help message and exit
-  -c CONFIG, --config CONFIG  the path to the CryptoBob config
+  -c CONFIG, --config CONFIG  path to the CryptoBob config
+  -s, --simple                enable simple logging format (e.g. for systemd)
   -v, --verbose               enable verbose logging mode (repeat to increase verbosity, up to -vvv)
 ```
 
@@ -53,6 +54,12 @@ To run _CryptoBob_, you can simply execute:
 
 ```bash
 cryptobob run -vv
+```
+
+To (force) buy / execute the configured trade plans, you can run:
+
+```bash
+cryptobob buy -vv
 ```
 
 In case you configured OTP for your API key and want to get a one-time code, you can run:
