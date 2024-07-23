@@ -25,6 +25,10 @@ private_key: «your private key»
 # desired market. If you found it, run `cryptobob assets` to find the matching
 # asset ID's.
 #
+# For the interval, you can use minutes, hours, days or weeks. Please note,
+# that if the global runner interval is higher than the trade plan interval,
+# the trade plans will not be executed timely.
+#
 
 trade_plans:
 
