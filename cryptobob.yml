@@ -1,0 +1,81 @@
+---
+#
+# SECURITY
+#
+# The API key & private key are required for trading and can be retrieved from
+# the Kraken account settings (see «Settings», «API», «Create API Key»).
+#
+# In case OTP / 2FA is activated for the API key (not the same as the account,
+# resp. login OTP / 2FA method), the OTP URI must be defined as well.
+#
+
+api_key: «your API key»
+private_key: «your private key»
+
+# otp_uri: «your OTP URI (optional)»
+
+#
+# TRADE PLANS
+#
+# Trade plans are the scheduled trading orders CryptoBob should execute on
+# your behalf.
+#
+# To find the right trading pair, login to the Kraken dashboard and find the
+# desired market. If you found it, run `cryptobob assets` to find the matching
+# asset ID's.
+#
+
+trade_plans:
+
+  - pair: XBTCHF
+    amount: 10
+    interval:
+      days: 1
+
+#
+# WITHDRAWALS
+#
+# Automated withdrawals of certain assets which CryptoBob should execute on
+# your behalf.
+#
+# To withdraw assets via API, the address and key (aka description) must be
+# configured via in the Kraken dashboard first (via «Withdraw» modal).
+#
+# By default, CryptoBob always withdraws the full asset balance. However, if an
+# `amount` is defined, CryptoBob will not exceed that amount during the
+# withdrawal.
+#
+# To find the right asset ID's, run `cryptobob assets`.
+#
+
+withdrawals:
+
+  - asset: XXBT
+    key: «your address key»
+    address: «your address»
+    threshold: 0.1
+    # amount: 0.075
+
+#
+# TIMING
+#
+
+# The interval (in minutes) at which the runner talks with Kraken.
+interval: 5
+
+# The interval (in minutes) at which the runner retries a failed order.
+retry_interval: 60
+
+# The timeout (in minutes) for which the runner retries a failed order at max.
+retry_timeout: 720
+
+#
+# TEST MODE
+#
+# If the test mode is enabled, market orders will not actually be submitted,
+# but only validated. Withdrawals are also not executed.
+#
+# This is good for testing / debugging.
+#
+
+test: False
