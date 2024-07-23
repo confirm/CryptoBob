@@ -12,7 +12,7 @@ from time import sleep
 from .exceptions import ConfigError, TradePlanError
 from .kraken import KrakenClient
 from .tradeplan import TradePlan
-from .withdrawl import Withdrawl
+from .withdrawal import Withdrawal
 
 LOGGER = getLogger(__name__)
 
@@ -29,7 +29,7 @@ class Runner:
         self.config      = config
         self.client      = None
         self.trade_plans = []
-        self.withdrawls  = []
+        self.withdrawals  = []
 
     def __call__(self):
         '''
@@ -39,7 +39,7 @@ class Runner:
 
         self.init_client()
         self.init_trade_plans()
-        self.init_withdrawls()
+        self.init_withdrawals()
 
         self.start_cycle()
 
@@ -100,11 +100,11 @@ class Runner:
         '''
         self.init_configuration_instances(TradePlan)
 
-    def init_withdrawls(self):
+    def init_withdrawals(self):
         '''
-        Initialise the withdrawls.
+        Initialise the withdrawals.
         '''
-        self.init_configuration_instances(Withdrawl)
+        self.init_configuration_instances(Withdrawal)
 
     def start_cycle(self):
         '''
@@ -126,8 +126,8 @@ class Runner:
 
             self.client.update_balance()
 
-            for withdrawl in self.withdrawls:
-                withdrawl()
+            for withdrawal in self.withdrawals:
+                withdrawal()
 
             LOGGER.debug('Runner cycle finished, sleeping for %d seconds', interval)
             LOGGER.debug('========== CYCLE FINISH')
