@@ -64,12 +64,13 @@ class CLI:
                 runner()
 
             elif action == 'assets':
-                print('ID         | Altname')
-                print('-----------+-----------')
-                print('\n'.join(f'{item[0]:10s} | {item[1]}' for item in KrakenClient.assets()))
+                sys.stdout.write('ID         | Altname\n-----------+-----------\n')
+                sys.stdout.write('\n'.join(
+                    f'{item[0]:10s} | {item[1]}' for item in KrakenClient.assets()
+                ) + '\n')
 
             elif action == 'otp':
-                print(otp_parse_uri(config.otp_uri).now())
+                sys.stdout.write(otp_parse_uri(config.otp_uri).now() + '\n')
 
         except CryptoBobError as ex:
             sys.stderr.write(f'ERROR: {ex}\n')

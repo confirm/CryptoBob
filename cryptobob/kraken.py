@@ -154,7 +154,7 @@ class KrakenClient:
         kwargs  = self._prepare_request(api_method=api_method, **data)
         request = Request(**kwargs)
 
-        with urlopen(request) as response:
+        with urlopen(request) as response:  # nosemgrep: dynamic-urllib-use-detected
             response_data  = load(response)
 
             LOGGER.debug('HTTP response: %r', response_data)
