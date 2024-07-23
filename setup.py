@@ -17,7 +17,7 @@ setup(
     # Package informations
     #
 
-    name='crypto-bob',
+    name='cryptobob',
 
     description='CryptoBob package',
     long_description=open('README.md').read(),
