@@ -17,19 +17,21 @@ class TradePlan:
     '''
     The trade plan class.
 
-    :param binance.client.Client client: The binance client
+    :param runner.Runner runner: The runner
     :param str pair: The trading pair
     :param float amount: The amount
-    :param dict schedule: The schedule
+    :param dict interval: Theinterval
     '''
 
     configuration_attribute = 'trade_plans'
 
-    def __init__(self, client, pair, amount, schedule):
-        self.client = client
-        self.pair   = pair
-        self.amount = amount
-        self.delta  = timedelta(**schedule)
+    def __init__(self, runner, pair, amount, interval):
+        self.runner      = runner
+        self.pair        = pair
+        self.amount      = amount
+        self.interval    = timedelta(**interval)
+        self.last_order  = None
+        self.last_failed = None
 
     def __str__(self):
         '''

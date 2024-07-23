@@ -15,7 +15,7 @@ class Withdrawl:
     '''
     The withdrawl class.
 
-    :param binance.client.Client client: The binance client
+    :param runner.Runner runner: The runner
     :param str asset: The asset ID
     :param float threshold: The threshold when the withdrawl should be triggered
     :param str address: The address to which the withdrawl should be sent
@@ -25,8 +25,8 @@ class Withdrawl:
 
     configuration_attribute = 'withdrawls'
 
-    def __init__(self, client, asset, threshold, address, amount=None):  # pylint: disable=too-many-arguments
-        self.client    = client
+    def __init__(self, runner, asset, threshold, address, amount=None):  # pylint: disable=too-many-arguments
+        self.runner    = runner
         self.asset     = asset
         self.threshold = threshold
         self.address   = address

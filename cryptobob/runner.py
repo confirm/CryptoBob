@@ -89,7 +89,7 @@ class Runner:
             LOGGER.debug('Initialising %s instance for configuration %r', name, item)
 
             try:
-                items.append(klass(client=self.client, **item))
+                items.append(klass(runner=self, **item))
             except TypeError as ex:
                 error = f'{name} configuration {item!r} misconfigured, got «{ex}»'
                 raise ConfigError(error) from ex
