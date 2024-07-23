@@ -80,7 +80,7 @@ class CLI:
         Initialise the argument parser.
         '''
         def get_help_formatter(prog):  # pylint: disable=missing-return-doc,missing-return-type-doc
-            return HelpFormatter(prog, max_help_position=33)
+            return HelpFormatter(prog, max_help_position=30)
 
         self.parser = ArgumentParser(
             description='CryptoBob - The bot which buys & withdraws crypto automatically.',
