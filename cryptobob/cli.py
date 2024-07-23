@@ -53,11 +53,11 @@ class CLI:
         args   = vars(self.parser.parse_args())
         action = args.pop('action')
 
-        config = Config(args.pop('config'))
-
-        self.init_logging(args.get('verbose') or 0)
-
         try:
+
+            config = Config(args.pop('config'))
+
+            self.init_logging(args.get('verbose') or 0)
 
             if action == 'run':
                 runner = Runner(config=config)

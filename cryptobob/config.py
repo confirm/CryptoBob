@@ -29,8 +29,9 @@ class Config:  # pylint: disable=too-few-public-methods
 
     def __init__(self, path):
         self.data = {}
-        self.path = path
+        self.path = path.expanduser()
 
+        self.verify_permissions()
         self.load()
 
     def __getattr__(self, attr):
@@ -42,12 +43,25 @@ class Config:  # pylint: disable=too-few-public-methods
         except KeyError as ex:
             raise ConfigError(f'Missing configuration property {ex}') from ex
 
+    def verify_permissions(self):
+        '''
+        Verify the permissions of the configuration file.
+
+        :raises ConfigError: When configuration file is missing or permissions too open
+        '''
+        loc = str(self.path)
+
+        if not self.path.is_file():
+            raise ConfigError(f'Configuration file {loc!r} not found')
+
+        if self.path.stat().st_mode & 0o77:
+            raise ConfigError(f'Configuration file {loc!r} must only be accessible by owner')
+
     def load(self):
         '''
         Load the configuration file.
         '''
         LOGGER.debug('Loading configuration from %r', str(self.path))
 
-        path = self.path.expanduser()
-        with path.open('r', encoding='utf-8') as file:
+        with self.path.open('r', encoding='utf-8') as file:
             self.data = safe_load(file)
