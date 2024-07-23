@@ -12,7 +12,7 @@ from hmac import digest as hmac_digest
 from json import load
 from logging import getLogger
 from time import time
-from urllib.parse import urlencode
+from urllib.parse import unquote_plus, urlencode
 from urllib.request import Request, urlopen
 
 from pyotp import parse_uri as otp_parse_uri
@@ -52,6 +52,7 @@ class KrakenClient:
         self.api_key     = api_key
         self.private_key = b64decode(private_key) if private_key else None
         self.otp_uri     = otp_uri
+        self.balance     = {}
 
     def _sign_request(self, endpoint, **data):
         '''
@@ -113,16 +114,17 @@ class KrakenClient:
         }
 
         if scope == 'private':
-            encoded_data, add_headers = self._sign_request(endpoint=endpoint, data=data)
-            kwargs['data'] = encoded_data.encode('utf-8')
+            data_encoded, add_headers = self._sign_request(endpoint=endpoint, **data)
+            kwargs['data'] = data_encoded.encode('utf-8')
             kwargs['headers'].update(add_headers)
         elif data:
-            encoded_data = urlencode(data)
-            kwargs['url'] += f'?{encoded_data}'
+            data_encoded = urlencode(data)
+            kwargs['url'] += f'?{data_encoded}'
 
-        LOGGER.debug('Request URL is %r', kwargs['url'])
-        LOGGER.debug('Request data is %r', kwargs.get('data'))
-        LOGGER.debug('Request HTTP headers %r', kwargs['headers'])
+        LOGGER.debug('HTTP request:')
+        LOGGER.debug('    URL:     %r', kwargs['url'])
+        LOGGER.debug('    Data:    %r', kwargs.get('data', b'').decode('utf-8'))
+        LOGGER.debug('    Headers: %r', kwargs['headers'])
 
         return kwargs
 
@@ -144,7 +146,7 @@ class KrakenClient:
         with urlopen(request) as response:
             response_data  = load(response)
 
-            LOGGER.debug('Reponse is %r', response_data)
+            LOGGER.debug('HTTP response: %r', response_data)
 
             response_error = response_data.get('error')
             if response_error:
@@ -168,4 +170,5 @@ class KrakenClient:
         '''
         Update the account balance.
         '''
+        LOGGER.debug('Updating account balance')
         self.balance = self.request('Balance')
