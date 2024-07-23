@@ -55,6 +55,12 @@ To run _CryptoBob_, you can simply execute:
 cryptobob run
 ```
 
+In case you configured OTP for your API key and want to get a one-time code, you can run:
+
+```bash
+cryptobob otp
+```
+
 Please note you've to configure _CryptoBob_ accordingly.  
 Check out the next section for the configuration.
 

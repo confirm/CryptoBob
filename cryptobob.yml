@@ -6,7 +6,8 @@
 # the Kraken account settings (see «Settings», «API», «Create API Key»).
 #
 # In case OTP / 2FA is activated for the API key (not the same as the account,
-# resp. login OTP / 2FA method), the OTP URI must be defined as well.
+# resp. login OTP / 2FA method), the OTP URI must be defined as well. To get
+# a current one-time code, configure the URI, then run `cryptobob otp`.
 #
 
 api_key: «your API key»
