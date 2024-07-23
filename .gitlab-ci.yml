@@ -1,0 +1,4 @@
+---
+include:
+    - project: confirm/gitlab-ci
+      file: python-package/.gitlab-ci.yml
