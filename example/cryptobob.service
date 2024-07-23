@@ -1,0 +1,17 @@
+#
+# Example systemd service unit to run CryptoBob as Linux service / daemon.
+#
+
+[Unit]
+Description=CryptoBob
+After=network-online.target
+
+[Service]
+Type=simple
+User=dbarton
+ExecStart=/home/cryptobob/.venv/bin/cryptobob run -vv -s
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target

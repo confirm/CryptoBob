@@ -24,6 +24,54 @@ Install the package from source:
 pip3 install cryptobob@git+https://git.confirm.ch/confirm/cryptobob.git
 ```
 
+Linux service
+-------------
+
+_CryptoBob_ can also be run as Linux service, for example via `systemd`.
+
+To use _CryptoBob_ as service, it's recommended to create a dedicated user, or to use your personal user for it.  
+Creating a new Linux user can be achieved as `root` by running these commands:
+
+```bash
+# Create new POSIX group
+groupadd -g 666 cyrptobob
+
+# Create new POSIX user
+useradd -d /home/cryptobob -m -g 666 -u 666 cryptobob
+```
+
+Then install _CryptoBob_ in a dedicated [Python venv](https://docs.python.org/3/library/venv.html) by running these commands:
+
+```bash
+# Change to new cryptobob user.
+su - cryptobob
+
+# Create new venv and activate it.
+python3 -mvenv ~/.venv
+source .venv/bin/activate
+
+# Install CryptoBob
+pip3 install cryptobob
+```
+
+The user needs to have access to the configuration file, documented in the [Configuration chapter](#Configuration).
+
+Is your configuration ready and _CryptoBob_ installed, you can use the [example systemd service unit](example/cryptobob.service) to configure, start, and enable a [systemd service](https://wiki.debian.org/systemd/Services):
+
+```bash
+# Download systemd service unit.
+curl -Lo /etc/systemd/system/cryptobob.service https://raw.githubusercontent.com/confirm/CryptoBob/master/example/cryptobob.service
+
+# Reload systemd daemon
+systemctl daemon-reload
+
+# Start and enable service
+systemctl enable cryptobob
+systemctl start cryptobob
+```
+
+__HINT__: Please note that if you've updated the `cryptobob.service` file, you need to run `systemctl daemon-reload` again.
+
 Usage
 =====
 
@@ -77,16 +125,17 @@ Configuration
 By default, _CryptoBob_ is searching its configuration file under `~/.cryptobob.yml`.  
 Feel free to change the configuration file path by specifying the `-c` or `--config` CLI flag.
 
-You can find an example configuration in the _CryptoBob_ repository called [`cryptobob.yml`](cryptobob.yml).
+You can find an [example configuration](example/cryptobob.yml) in the _CryptoBob_ repository.
 
 __IMPORTANT:__ The configuration file contains sensitive informations. Make sure you set the permissions right!
 
 Runtime data
 ============
 
-Please note _CryptoBob_ doesn't store any runtime data or alike on your system, since it will always check in with Kraken directly.
+Please note _CryptoBob_ doesn't store any runtime data or alike on your system, since it will always use the Kraken order history as a reference for upcoming orders.
 
-For example, when you configure an interval of buying a certain asset, _CryptoBob_ will always check the order history, to find the last executed order.
-Given the retreived order timestamp, _CryptoBob_ decides to open new orders based on your configuration.
+For example, when _CryptoBob_ buys a certain asset on Kraken, it will open a new buy order. That buy order is then submitted, executed, and stored on Kraken.
+When _CryptoBob_ then runs again, it will retrieve the last executed order for certain asset from Kraken, compare its order timestamp with your configured interval, and checks if enough time has passed to open another buy oder.
 
 Of course, only orders initiated by _CryptoBob_ will be queried for the timestamps (achieved via [`userref` on `ClosedOrders`](https://docs.kraken.com/rest/#tag/Account-Data/operation/getClosedOrders)).
+
