@@ -52,7 +52,7 @@ cryptobob assets
 To run _CryptoBob_, you can simply execute:
 
 ```bash
-cryptobob run
+cryptobob run -vv
 ```
 
 In case you configured OTP for your API key and want to get a one-time code, you can run:
