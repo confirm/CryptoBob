@@ -9,7 +9,7 @@ __all__ = (
 from logging import getLogger
 from time import sleep
 
-from .exceptions import ConfigError
+from .exceptions import ConfigError, TradePlanError
 from .kraken import KrakenClient
 from .tradeplan import TradePlan
 from .withdrawl import Withdrawl
@@ -113,12 +113,16 @@ class Runner:
         interval = self.config.interval * 60
 
         while True:
+            LOGGER.debug('========== CYCLE START')
             LOGGER.debug('Starting new runner cycle')
 
             self.client.assert_online_status()
 
             for trade_plan in self.trade_plans:
-                trade_plan()
+                try:
+                    trade_plan()
+                except TradePlanError as ex:
+                    LOGGER.warning(ex)
 
             self.client.update_balance()
 
@@ -126,4 +130,5 @@ class Runner:
                 withdrawl()
 
             LOGGER.debug('Runner cycle finished, sleeping for %d seconds', interval)
+            LOGGER.debug('========== CYCLE FINISH')
             sleep(interval)

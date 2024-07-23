@@ -25,3 +25,9 @@ class StatusError(ResponseError):
     '''
     Exception which is thrown when system status isn't online / normal.
     '''
+
+
+class TradePlanError(CryptoBobError):
+    '''
+    Exception which is thrown when there's an error in the trade plan.
+    '''

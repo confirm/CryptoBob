@@ -16,8 +16,8 @@ from pathlib import Path
 from pyotp import parse_uri as otp_parse_uri
 
 from .config import Config
-from .kraken import KrakenClient
 from .exceptions import CryptoBobError
+from .kraken import KrakenClient
 from .runner import Runner
 
 LOGGER = getLogger(__name__)
